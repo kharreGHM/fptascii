@@ -1,6 +1,8 @@
 ﻿/*
  * Author : kharre
- * Date : 2020/09/05
+ * Creation : 2020/09/05
+ * Modifications :
+ * _2020/10/25 : Notion of scales added
  */
 
 using System;
@@ -12,62 +14,83 @@ namespace fptascii
     {
         private static void Main(string[] args)
         {
-            string fileName = "";
+            var fileName = "";
 
-            switch (args[0])
+            // Needs scales in order to make the ASCII output visible without unzoom
+            byte scaleX = 8;
+            byte scaleY = scaleX;
+
+            if (fileName.Equals(""))
             {
-                case "--help":
-                case "-h":
-                    Console.WriteLine("Here is the help.");
-                    Environment.Exit(0);
-                    break;
-                default:
-                    fileName = args[0].ToString();
-                    break;
+                // Add support of scales argument somehere
+                switch (args[0])
+                {
+                    case "--help":
+                    case "-h":
+                        Console.WriteLine("Here is the help.");
+                        Environment.Exit(0);
+                        break;
+                    default:
+                        fileName = args[0].ToString();
+                        break;
+                }
             }
 
-            Bitmap picture = new Bitmap(fileName, true);
+            // Source image
+            Bitmap source = new Bitmap(fileName, true);
 
             // Numeric value array of shades of gray from the picture
-            short[,] shade = new short[picture.Width, picture.Height];
+            byte[,] shade = new byte[source.Width, source.Height];
 
             // Character array for ASCII representation of the picture
-            char[,] ascii = new char[picture.Width, picture.Height];
+            char[,] ascii = new char[source.Width, source.Height];
+
+            // Source image with a lower resolution
+            Bitmap lowRes = new Bitmap(source.Width / scaleX, source.Height / scaleY);
+
+            for (var x = 0; x < source.Width - scaleX; x += scaleX)
+            {
+                for (var y = 0; y < source.Height - scaleY; y += scaleY)
+                {
+                    Color currentPixelColor = source.GetPixel(x, y);
+                    lowRes.SetPixel(x / scaleX, y / scaleY, currentPixelColor);
+                }
+            }
 
             // Pixel per pixel processing
-            for (short x = 0; x < picture.Width; x++)
+            for (var x = 0; x < lowRes.Width; x++)
             {
-                for (short y = 0; y < picture.Height; y++)
+                for (var y = 0; y < lowRes.Height; y++)
                 {
-                    Color currentPixelColor = picture.GetPixel(x, y);
+                    Color currentPixelColor = lowRes.GetPixel(x, y);
                     // Get shade of gray of the current pixel
                     shade[x, y] = (byte)((currentPixelColor.R + currentPixelColor.G + currentPixelColor.B) / 3);
                     // Set a character for the current shade of gray
-                    if (shade[x, y] <= 255 && shade[x, y] > 192)
+                    if ((shade[x, y] <= 255) && (shade[x, y] > 192))
                     {
                         ascii[x, y] = '.';
                     }
-                    else if (shade[x, y] <= 192 && shade[x, y] > 128)
+                    else if ((shade[x, y] <= 192) && (shade[x, y] > 128))
                     {
                         ascii[x, y] = 'o';
                     }
-                    else if (shade[x, y] <= 128 && shade[x, y] > 64)
+                    else if ((shade[x, y] <= 128) && (shade[x, y] > 64))
                     {
                         ascii[x, y] = '0';
                     }
-                    else if (shade[x, y] <= 64 && shade[x, y] >= 0)
+                    else if ((shade[x, y] <= 64) && (shade[x, y] >= 0))
                     {
                         ascii[x, y] = '@';
                     }
                 }
             }
 
-            string[] lines = new string[picture.Height];
+            string[] lines = new string[source.Height];
 
-            for (short x = 0; x < picture.Height; x++)
+            for (var x = 0; x < lowRes.Height; x++)
             {
-                string line = "";
-                for (short y = 0; y < picture.Width; y++)
+                var line = "";
+                for (var y = 0; y < lowRes.Width; y++)
                 {
                     line += ascii[y, x] + "  ";
                 }
