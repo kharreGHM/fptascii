@@ -3,6 +3,7 @@
  * Creation : 2020/09/05
  * Modifications :
  * _2020/10/25 : Notion of scales added
+ * _2020/10/26 : Useless shade byte array deleted
  */
 
 using System;
