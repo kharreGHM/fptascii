@@ -22,7 +22,7 @@ namespace fptascii
 
             if (fileName.Equals(""))
             {
-                // Add support of scales argument somehere
+                // Add support of scale argument somehere
                 switch (args[0])
                 {
                     case "--help":
@@ -38,9 +38,6 @@ namespace fptascii
 
             // Source image
             Bitmap source = new Bitmap(fileName, true);
-
-            // Numeric value array of shades of gray from the picture
-            byte[,] shade = new byte[source.Width, source.Height];
 
             // Character array for ASCII representation of the picture
             char[,] ascii = new char[source.Width, source.Height];
@@ -64,21 +61,21 @@ namespace fptascii
                 {
                     Color currentPixelColor = lowRes.GetPixel(x, y);
                     // Get shade of gray of the current pixel
-                    shade[x, y] = (byte)((currentPixelColor.R + currentPixelColor.G + currentPixelColor.B) / 3);
+                    var shade = (byte)((currentPixelColor.R + currentPixelColor.G + currentPixelColor.B) / 3);
                     // Set a character for the current shade of gray
-                    if ((shade[x, y] <= 255) && (shade[x, y] > 192))
+                    if ((shade <= 255) && (shade > 192))
                     {
                         ascii[x, y] = '.';
                     }
-                    else if ((shade[x, y] <= 192) && (shade[x, y] > 128))
+                    else if ((shade <= 192) && (shade > 128))
                     {
                         ascii[x, y] = 'o';
                     }
-                    else if ((shade[x, y] <= 128) && (shade[x, y] > 64))
+                    else if ((shade <= 128) && (shade > 64))
                     {
                         ascii[x, y] = '0';
                     }
-                    else if ((shade[x, y] <= 64) && (shade[x, y] >= 0))
+                    else if ((shade <= 64) && (shade >= 0))
                     {
                         ascii[x, y] = '@';
                     }
